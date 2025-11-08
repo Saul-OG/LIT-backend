@@ -11,12 +11,13 @@ class Topic extends Model
 
     protected $fillable = [
         'subject_id','title','description','theory_content','video_url',
-        'type','order','is_active','optionA','optionB','optionC','optionD','correct_option'
+        'type','order','is_active','optionA','optionB','optionC','optionD','correct_option','level'
     ];
 
     protected $casts = [
         'is_active' => 'boolean',
         'order'     => 'integer',
+        'level'     => 'integer',
     ];
 
     public function subject()

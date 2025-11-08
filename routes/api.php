@@ -63,6 +63,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     // --- Ejercicios: responder ---
     Route::post('/exercises/{exerciseId}/answer', [ExerciseController::class, 'submitAnswer']);
+    // Alias para compatibilidad con el frontend (submit)
+    Route::post('/exercises/{exerciseId}/submit', [ExerciseController::class, 'submitAnswer']);
 
     // ===================================================
     // 🧠 RUTAS DE ADMINISTRADOR (auth + admin)
@@ -83,6 +85,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::post('/exercises',        [ExerciseController::class, 'store']);
         Route::put('/exercises/{id}',    [ExerciseController::class, 'update']);
         Route::delete('/exercises/{id}', [ExerciseController::class, 'destroy']);
+        // Carga masiva de ejercicios ABCD por tópico
+        Route::post('/topics/{id}/exercises/bulk', [ExerciseController::class, 'bulkStore']);
 
         // --- Gestión de Usuarios ---
         Route::get('/users',             [UserController::class, 'index']);

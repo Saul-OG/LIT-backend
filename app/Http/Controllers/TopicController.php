@@ -13,6 +13,7 @@ class TopicController extends Controller
     {
         return Topic::where('subject_id', $subjectId)
             ->where('is_active', true)
+            ->orderBy('level')
             ->orderBy('order')
             ->get();
     }
@@ -24,37 +25,31 @@ class TopicController extends Controller
 
     public function store(Request $request)
     {
-        $rulesBase = [
+        $rules = [
             'subject_id'  => 'required|exists:subjects,id',
             'title'       => 'required|string|max:255',
             'description' => 'nullable|string',
             'order'       => 'nullable|integer|min:1',
-            'type'        => 'required|in:texto,video,ABCD',
+            'type'        => 'nullable|in:texto,video,ABCD',
+            'level'       => 'required|integer|min:1|max:3',
             'is_active'   => 'boolean',
+            'theory_content' => 'nullable|string',
+            'video_url'      => 'nullable|url',
+            'optionA'        => 'nullable|string',
+            'optionB'        => 'nullable|string',
+            'optionC'        => 'nullable|string',
+            'optionD'        => 'nullable|string',
+            'correct_option' => 'nullable|in:A,B,C,D',
         ];
-        $rulesExtra = [];
-        if ($request->type === 'texto') {
-            $rulesExtra['theory_content'] = 'required|string';
-        } elseif ($request->type === 'video') {
-            $rulesExtra['video_url'] = 'required|url';
-        } elseif ($request->type === 'ABCD') {
-            $rulesExtra = [
-                'optionA' => 'required|string',
-                'optionB' => 'required|string',
-                'optionC' => 'required|string',
-                'optionD' => 'required|string',
-                'correct_option' => 'required|in:A,B,C,D',
-            ];
-        }
 
-        $v = Validator::make($request->all(), array_merge($rulesBase,$rulesExtra));
+        $v = Validator::make($request->all(), $rules);
         if ($v->fails()) {
             return response()->json(['success'=>false,'message'=>'Errores de validación','errors'=>$v->errors()], 422);
         }
 
         $topic = Topic::create($request->all());
 
-        if ($topic->type === 'ABCD') {
+        if ($request->filled('correct_option') && $request->filled('optionA') && $request->filled('optionB') && $request->filled('optionC') && $request->filled('optionD')) {
             $options = [
                 $request->optionA,
                 $request->optionB,
@@ -68,6 +63,7 @@ class TopicController extends Controller
                 'options'        => $options,
                 'correct_answer' => $map[$request->correct_option] ?? 0,
                 'difficulty'     => 'easy',
+                'level'          => $topic->level ?? 1,
                 'order'          => 1,
                 'is_active'      => true,
             ]);
@@ -81,7 +77,7 @@ class TopicController extends Controller
         $topic = Topic::findOrFail($id);
         $topic->update($r->only([
             'subject_id','title','description','theory_content','video_url',
-            'type','order','is_active','optionA','optionB','optionC','optionD','correct_option'
+            'type','order','is_active','optionA','optionB','optionC','optionD','correct_option','level'
         ]));
         return response()->json($topic);
     }

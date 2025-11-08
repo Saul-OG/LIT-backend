@@ -10,7 +10,7 @@ class Exercise extends Model
     use HasFactory;
 
     protected $fillable = [
-        'topic_id','question','options','correct_answer','difficulty','order','is_active'
+        'topic_id','question','options','correct_answer','difficulty','order','is_active','level'
     ];
 
     protected $casts = [
@@ -18,6 +18,7 @@ class Exercise extends Model
         'is_active' => 'boolean',
         'order'     => 'integer',
         'correct_answer' => 'integer',
+        'level'     => 'integer',
     ];
 
     public function topic()
